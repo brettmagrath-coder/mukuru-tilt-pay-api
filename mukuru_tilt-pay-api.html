@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tilt Pay API</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23bf3e09'/><text y='.9em' font-size='70' x='15' fill='white'>t</text></svg>">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --orange:#bf3e09; --orange-h:#9e340a;
+      --orange-bg:rgba(191,62,9,0.07); --orange-bd:rgba(191,62,9,0.22);
+      --bg:#f4f3f0; --srf:#ffffff; --srf2:#f0efe9; --srf3:#e8e7e1;
+      --bd:#e0dfd8; --bd2:#c4c3bc;
+      --txt:#1a1917; --txt2:#6e6d69; --txt3:#a8a7a2;
+      --sw:#15875f; --sw-bg:rgba(21,135,95,0.07); --sw-bd:rgba(21,135,95,0.22); --sw-tx:#0b5e3e;
+      --mm:#9a5e0a; --mm-bg:rgba(154,94,10,0.07); --mm-bd:rgba(154,94,10,0.22); --mm-tx:#6b3f07;
+      --bk:#1559a0; --bk-bg:rgba(21,89,160,0.07); --bk-bd:rgba(21,89,160,0.22); --bk-tx:#0c3a6b;
+      --gl:#4a42b0; --gl-bg:rgba(74,66,176,0.07); --gl-bd:rgba(74,66,176,0.22); --gl-tx:#302873;
+      --cr:#8b3216; --cr-bg:rgba(139,50,22,0.07); --cr-bd:rgba(139,50,22,0.22); --cr-tx:#5c200d;
+      --xv:#376010; --xv-bg:rgba(55,96,16,0.07); --xv-bd:rgba(55,96,16,0.22); --xv-tx:#234009;
+      --mk:#6829c0; --mk-bg:rgba(104,41,192,0.07); --mk-bd:rgba(104,41,192,0.22); --mk-tx:#4c1d95;
+    }
+    html,body{height:100%;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;}
+    .site-nav{background:var(--srf);border-bottom:1px solid var(--bd);box-shadow:0 1px 4px rgba(0,0,0,0.06);position:sticky;top:0;z-index:100;}
+    .nav-inner{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;height:54px;}
+    .nav-brand{display:flex;align-items:center;gap:9px;margin-right:28px;flex-shrink:0;}
+    .nav-lm{width:28px;height:28px;border-radius:7px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;font-family:Georgia,serif;}
+    .nav-name{font-size:13px;font-weight:600;letter-spacing:.03em;}
+    .nav-sep{width:1px;height:14px;background:var(--bd2);margin-right:28px;}
+    .nav-tabs{display:flex;gap:4px;}
+    .nav-tab{padding:6px 14px;border-radius:8px;border:1.5px solid transparent;background:transparent;cursor:pointer;font-size:13px;font-weight:500;color:var(--txt2);transition:all .15s;outline:none;}
+    .nav-tab:hover{background:var(--srf2);color:var(--txt);border-color:var(--bd);}
+    .nav-tab.active{background:var(--orange);border-color:var(--orange);color:#fff;box-shadow:0 2px 6px rgba(191,62,9,0.25);}
+    .pages{flex:1;}.page{display:none;}.page.active{display:block;}
+    .wrap{max-width:1100px;margin:0 auto;padding:44px 24px 80px;}
+    .page-hero{margin-bottom:32px;}
+    .page-hero h1{font-size:26px;font-weight:700;letter-spacing:-.4px;margin-bottom:8px;}
+    .page-hero h1 span{color:var(--orange);}
+    .page-hero p{font-size:14px;color:var(--txt2);line-height:1.6;max-width:600px;}
+    .pills{display:flex;gap:7px;flex-wrap:wrap;margin:20px 0;}
+    .pill{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:100px;font-size:12px;font-weight:500;border:1px solid;}
+    .pill-sw{background:var(--sw-bg);color:var(--sw-tx);border-color:var(--sw-bd);}
+    .pill-mm{background:var(--mm-bg);color:var(--mm-tx);border-color:var(--mm-bd);}
+    .pill-bk{background:var(--bk-bg);color:var(--bk-tx);border-color:var(--bk-bd);}
+    .pill-gl{background:var(--gl-bg);color:var(--gl-tx);border-color:var(--gl-bd);}
+    .pill-cr{background:var(--cr-bg);color:var(--cr-tx);border-color:var(--cr-bd);}
+    .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;font-size:10px;font-weight:600;flex-shrink:0;border:1px solid;}
+    .bs{background:var(--sw-bg);color:var(--sw-tx);border-color:var(--sw-bd);}
+    .bm{background:var(--mm-bg);color:var(--mm-tx);border-color:var(--mm-bd);}
+    .bb{background:var(--bk-bg);color:var(--bk-tx);border-color:var(--bk-bd);}
+    .bg{background:var(--gl-bg);color:var(--gl-tx);border-color:var(--gl-bd);}
+    .bc{background:var(--cr-bg);color:var(--cr-tx);border-color:var(--cr-bd);}
+    .bx{background:var(--xv-bg);color:var(--xv-tx);border-color:var(--xv-bd);}
+    .section-label{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--txt3);margin-bottom:14px;}
+    .divider{display:flex;align-items:center;gap:10px;margin:28px 0;}
+    .divider-line{flex:1;height:1px;background:var(--bd);}
+    .divider-text{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--txt3);white-space:nowrap;}
+    .tab-hint{font-size:11px;color:var(--txt3);margin-bottom:14px;display:flex;align-items:center;gap:5px;}
+    .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+    .tab{padding:8px 16px;border-radius:100px;border:1.5px solid var(--bd);background:var(--srf);cursor:pointer;font-size:12px;font-weight:500;color:var(--txt2);transition:all .15s;white-space:nowrap;outline:none;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
+    .tab:hover{border-color:var(--bd2);color:var(--txt);box-shadow:0 2px 7px rgba(0,0,0,0.1);transform:translateY(-1px);}
+    .tab.active{background:var(--orange);border-color:var(--orange);color:#fff;box-shadow:0 2px 7px rgba(191,62,9,0.22);}
+    .headline{display:flex;background:var(--srf);border:1px solid var(--bd);border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+    .headline-accent{width:4px;background:var(--orange);flex-shrink:0;}
+    .headline-body{padding:14px 18px;}
+    .headline-label{font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--txt3);margin-bottom:5px;}
+    .headline-title{font-size:15px;font-weight:700;margin-bottom:3px;}
+    .headline-sub{font-size:12px;color:var(--txt2);line-height:1.5;}
+    .services{display:flex;gap:14px;margin-bottom:36px;align-items:flex-start;}
+    .scol{flex:1;min-width:0;}
+    .scol-head{font-size:11px;font-weight:700;letter-spacing:.07em;color:var(--txt3);margin-bottom:10px;}
+    .ii{padding:11px 13px;margin-bottom:7px;background:var(--srf);border:1px solid var(--bd);border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+    .ii-header{display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap;}
+    .ii-label{font-size:12px;font-weight:600;flex:1;min-width:0;}
+    .ii-sub{font-size:11px;color:var(--txt2);line-height:1.4;}
+    .ii.is{border-left:3px solid var(--sw);}
+    .ii.im{border-left:3px solid var(--mm);}
+    .ii.ib{border-left:3px solid var(--bk);}
+    .ii.ig{border-left:3px solid var(--gl);}
+    .ii.ic{border-left:3px solid var(--cr);}
+    .ii.ix{border-left:3px solid var(--xv);}
+    .ii.ibm{border-left:3px solid var(--bk);}
+    .ii-logo{width:20px;height:20px;border-radius:4px;object-fit:contain;background:var(--srf2);padding:1px;flex-shrink:0;}
+    .ii-logo-init{width:20px;height:20px;border-radius:4px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;}
+    .logo-cluster{display:flex;gap:2px;align-items:center;}
+    .xgrid{display:flex;gap:12px;margin-top:8px;}
+    .xcard{flex:1;min-width:0;background:var(--srf);border:1px solid var(--bd);border-radius:14px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+    .xcard-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:12px;}
+    .xcard-title{font-size:13px;font-weight:700;margin-bottom:6px;}
+    .xcard-body{font-size:12px;color:var(--txt2);line-height:1.8;}
+    .xcard-sw .xcard-icon{background:var(--sw-bg);color:var(--sw);}
+    .xcard-mm .xcard-icon{background:var(--mm-bg);color:var(--mm);}
+    .xcard-gl .xcard-icon{background:var(--gl-bg);color:var(--gl);}
+    .cs-page{background:var(--srf);border:1px solid var(--bd);border-radius:16px;padding:40px;box-shadow:0 1px 4px rgba(0,0,0,0.05);max-width:700px;}
+    .cs-flag{font-size:40px;margin-bottom:12px;}
+    .cs-name{font-size:22px;font-weight:700;margin-bottom:6px;}
+    .cs-head{font-size:14px;font-weight:700;color:var(--orange);margin-bottom:8px;}
+    .cs-sub{font-size:13px;color:var(--txt2);line-height:1.6;margin-bottom:24px;max-width:500px;}
+    .cs-tag{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;background:var(--mm-bg);color:var(--mm-tx);border:1px solid var(--mm-bd);margin-bottom:16px;}
+    .cs-cards{display:flex;flex-direction:column;gap:10px;}
+    .cs-card{background:var(--srf2);border:1px solid var(--bd);border-left:3px solid var(--mm);border-radius:0 10px 10px 0;padding:14px 16px;}
+    .cs-card-title{font-size:12px;font-weight:700;margin-bottom:4px;}
+    .cs-card-body{font-size:12px;color:var(--txt2);line-height:1.5;}
+    .state-toggle{display:flex;gap:8px;margin-bottom:28px;}
+    .state-btn{padding:10px 22px;border-radius:10px;border:1.5px solid var(--bd);background:var(--srf);cursor:pointer;font-size:13px;font-weight:500;color:var(--txt2);transition:all .15s;outline:none;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+    .state-btn:hover{border-color:var(--bd2);color:var(--txt);box-shadow:0 2px 6px rgba(0,0,0,0.1);transform:translateY(-1px);}
+    .state-btn.active{background:var(--orange);border-color:var(--orange);color:#fff;box-shadow:0 2px 7px rgba(191,62,9,0.22);}
+    .ent-state{display:none;}.ent-state.active{display:block;}
+    .ent-panels{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:start;}
+    .ent-panel{background:var(--srf);border:1px solid var(--bd);border-radius:16px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+    .panel-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--bd);}
+    .panel-tag{padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;}
+    .tag-tilt{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-bd);}
+    .tag-mukuru{background:var(--mk-bg);color:var(--mk-tx);border:1px solid var(--mk-bd);}
+    .panel-title{font-size:14px;font-weight:700;}
+    .client-row{display:flex;align-items:center;gap:8px;padding:10px 12px;margin-bottom:6px;background:var(--srf2);border:1px solid var(--bd);border-radius:9px;}
+    .client-logo{width:22px;height:22px;border-radius:5px;object-fit:contain;background:var(--srf);padding:2px;flex-shrink:0;border:1px solid var(--bd);}
+    .client-name{font-size:13px;font-weight:600;flex:1;}
+    .conn-badge{font-size:10px;padding:2px 8px;border-radius:100px;font-weight:600;white-space:nowrap;border:1px solid;}
+    .conn-direct{background:var(--sw-bg);color:var(--sw-tx);border-color:var(--sw-bd);}
+    .conn-proxy{background:var(--mm-bg);color:var(--mm-tx);border-color:var(--mm-bd);}
+    .conn-mukuru{background:var(--mk-bg);color:var(--mk-tx);border-color:var(--mk-bd);}
+    .client-others{font-size:11px;color:var(--txt3);padding:6px 12px;margin-bottom:8px;}
+    .flow-arrow{text-align:center;font-size:20px;color:var(--txt3);padding:8px 0;}
+    .api-node{text-align:center;padding:13px 20px;border-radius:12px;font-size:14px;font-weight:700;}
+    .api-tilt{background:var(--orange);color:#fff;box-shadow:0 2px 8px rgba(191,62,9,0.2);}
+    .api-mukuru{background:var(--mk-bg);border:1.5px solid var(--mk-bd);color:var(--mk-tx);}
+    .dest-row{display:flex;gap:8px;margin-top:8px;}
+    .dest-card{flex:1;background:var(--srf2);border:1px solid var(--bd);border-radius:10px;padding:13px;}
+    .dest-card-title{font-size:12px;font-weight:700;margin-bottom:4px;}
+    .dest-card-body{font-size:11px;color:var(--txt2);line-height:1.6;}
+    .ent-sep{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:80px 16px 0;gap:6px;}
+    .sep-line{width:1px;height:80px;background:var(--bd);}
+    .sep-text{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--txt3);text-align:center;line-height:1.4;}
+    .ent-unified{background:var(--srf);border:1px solid var(--bd);border-radius:16px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+    .unified-clients{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;margin-bottom:20px;}
+    .unified-flow{display:flex;flex-direction:column;align-items:center;gap:4px;}
+    .unified-dest{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;width:100%;}
+    .big-dest{background:var(--srf2);border:1px solid var(--bd);border-radius:14px;padding:18px;}
+    .big-dest-title{font-size:13px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+    .big-dest-body{font-size:12px;color:var(--txt2);line-height:1.8;}
+    .note-tag{font-size:10px;padding:2px 8px;border-radius:100px;background:var(--sw-bg);color:var(--sw-tx);font-weight:700;border:1px solid var(--sw-bd);}
+    .note-tag-mk{background:var(--mk-bg);color:var(--mk-tx);border-color:var(--mk-bd);}
+    .committed-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:32px;}
+    .committed-card{background:var(--srf);border:1.5px solid var(--sw);border-radius:14px;padding:20px;position:relative;overflow:hidden;box-shadow:0 1px 4px rgba(21,135,95,0.12);}
+    .committed-card::before{content:'';position:absolute;top:0;right:0;width:50px;height:50px;background:var(--sw-bg);border-radius:0 14px 0 50px;}
+    .committed-flag{font-size:28px;margin-bottom:10px;}
+    .committed-country{font-size:16px;font-weight:700;margin-bottom:4px;}
+    .committed-switch{font-size:12px;color:var(--sw-tx);font-weight:700;margin-bottom:8px;}
+    .committed-desc{font-size:12px;color:var(--txt2);line-height:1.5;}
+    .committed-check{position:absolute;top:14px;right:14px;width:22px;height:22px;background:var(--sw);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700;}
+    .caps-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:32px;}
+    .cap-card{background:var(--srf);border:1px solid var(--bd);border-top:3px solid var(--orange);border-radius:0 0 12px 12px;padding:16px 14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
+    .cap-icon{font-size:18px;margin-bottom:10px;}
+    .cap-title{font-size:13px;font-weight:700;margin-bottom:5px;}
+    .cap-sub{font-size:11px;color:var(--txt2);line-height:1.5;}
+    .unlock-banner{background:var(--srf);border:1px solid var(--orange-bd);border-left:3px solid var(--orange);border-radius:0 12px 12px 0;padding:16px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(191,62,9,0.06);}
+    .unlock-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:32px;}
+    .unlock-card{background:var(--srf);border:1px solid var(--bd);border-radius:12px;padding:16px 14px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+    .unlock-flag{font-size:22px;margin-bottom:8px;}
+    .unlock-country{font-size:13px;font-weight:700;margin-bottom:4px;}
+    .unlock-via{font-size:11px;color:var(--txt2);}
+    .unlock-auto{display:inline-block;font-size:10px;padding:2px 8px;border-radius:100px;background:var(--mm-bg);color:var(--mm-tx);font-weight:700;border:1px solid var(--mm-bd);margin-top:7px;}
+    .mkt-matrix{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:32px;background:var(--srf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+    .mkt-matrix th{background:var(--srf2);padding:10px 14px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.05em;color:var(--txt3);border-bottom:1px solid var(--bd);}
+    .mkt-matrix td{padding:10px 14px;border-bottom:1px solid var(--bd);}
+    .mkt-matrix tr:last-child td{border-bottom:none;}
+    .check-yes{color:var(--sw-tx);font-size:14px;font-weight:700;}
+    .check-no{color:var(--txt3);font-size:14px;}
+    .status-commit{font-size:10px;padding:2px 8px;border-radius:100px;background:var(--sw-bg);color:var(--sw-tx);font-weight:700;border:1px solid var(--sw-bd);}
+    .status-auto{font-size:10px;padding:2px 8px;border-radius:100px;background:var(--mm-bg);color:var(--mm-tx);font-weight:700;border:1px solid var(--mm-bd);}
+
+    .client-section-title{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--txt3);padding:0 4px;margin-bottom:8px;margin-top:4px;}
+    .client-section{margin-bottom:0;}
+    .client-section+.client-section{padding-top:14px;margin-top:14px;border-top:1px solid var(--bd);}
+    .conn-upload{background:var(--gl-bg);color:var(--gl-tx);border-color:var(--gl-bd);}
+    .sector-icon{width:22px;height:22px;border-radius:4px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:12px;background:var(--srf2);border:1px solid var(--bd);}
+    .crypto-caps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px;}
+    .crypto-cap{background:var(--srf);border:1px solid var(--bd);border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
+    .crypto-cap-icon{font-size:20px;margin-bottom:10px;}
+    .crypto-cap-title{font-size:13px;font-weight:700;margin-bottom:6px;}
+    .crypto-cap-sub{font-size:12px;color:var(--txt2);line-height:1.5;}
+    .partner-grid{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;}
+    .partner-card{background:var(--srf);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,0.04);display:flex;align-items:center;gap:10px;flex:1;min-width:160px;}
+    .partner-logo{width:28px;height:28px;border-radius:6px;object-fit:contain;background:var(--srf2);padding:2px;flex-shrink:0;border:1px solid var(--bd);}
+    .partner-info{}
+    .partner-name{font-size:12px;font-weight:700;}
+    .partner-role{font-size:10px;color:var(--txt2);}
+    .crypto-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:32px;}
+    .crypto-detail{background:var(--srf);border:1px solid var(--bd);border-radius:14px;padding:22px;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+    .crypto-detail-hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--bd);}
+    .crypto-detail-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+    .crypto-detail-title{font-size:14px;font-weight:700;}
+    .crypto-detail-tag{font-size:10px;padding:2px 7px;border-radius:100px;font-weight:700;border:1px solid;}
+    .crypto-flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:12px 0;padding:10px;background:var(--srf2);border-radius:8px;}
+    .cf-node{background:var(--srf);border:1px solid var(--bd);border-radius:6px;padding:5px 10px;font-size:10px;font-weight:600;}
+    .cf-arr{font-size:12px;color:var(--txt3);}
+    .crypto-bullets{display:flex;flex-direction:column;gap:7px;}
+    .crypto-bullet{display:flex;gap:8px;align-items:flex-start;}
+    .cb-dot{width:6px;height:6px;border-radius:50%;background:var(--orange);flex-shrink:0;margin-top:5px;}
+    .cb-text{font-size:12px;color:var(--txt2);line-height:1.5;}
+    .crypto-mukuru-tag{font-size:11px;font-weight:700;color:var(--mk-tx);background:var(--mk-bg);border:1px solid var(--mk-bd);border-radius:100px;padding:2px 10px;display:inline-block;margin-bottom:8px;}
+    .tilt-benefit-banner{background:var(--orange);color:#fff;border-radius:14px;padding:24px 28px;margin-top:4px;display:flex;align-items:flex-start;gap:18px;}
+    .tilt-benefit-icon{font-size:28px;flex-shrink:0;margin-top:2px;}
+    .tilt-benefit-title{font-size:16px;font-weight:700;margin-bottom:6px;}
+    .tilt-benefit-body{font-size:13px;line-height:1.6;opacity:.92;}
+    @media(max-width:700px){.crypto-caps-grid{grid-template-columns:1fr 1fr;}.crypto-detail-grid{grid-template-columns:1fr;}.partner-grid{flex-direction:column;}}
+    @media(max-width:700px){.ent-panels{grid-template-columns:1fr;}.ent-sep{display:none;}.committed-grid,.unlock-grid{grid-template-columns:1fr 1fr;}.caps-grid{grid-template-columns:1fr 1fr;}.unified-dest{grid-template-columns:1fr;}}
+
+    .flow-wrapper{display:flex;gap:10px;align-items:stretch;}
+    .flow-rows{flex:1;display:flex;flex-direction:column;gap:5px;}
+    .flow-sec-lbl{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--txt3);padding:2px 4px;margin-top:4px;}
+    .flow-row{display:flex;align-items:center;min-height:44px;}
+    .flow-client{flex-shrink:0;width:156px;}
+    .flow-client .client-row{margin-bottom:0;}
+    .flow-conn{flex:1;display:flex;align-items:center;gap:5px;padding:0 6px;}
+    .fl{flex:1;height:1.5px;background:var(--bd2);}
+    .farr{font-size:13px;color:var(--bd2);}
+    .f-direct{font-size:10px;font-weight:700;color:var(--sw-tx);background:var(--sw-bg);border:1px solid var(--sw-bd);border-radius:100px;padding:2px 9px;white-space:nowrap;}
+    .f-proxy{font-size:11px;font-weight:700;padding:6px 12px;border-radius:8px;white-space:nowrap;border:1.5px solid;line-height:1.2;}
+    .fp-mg{color:var(--mm-tx);background:var(--mm-bg);border-color:var(--mm-bd);}
+    .fp-rp{color:var(--gl-tx);background:var(--gl-bg);border-color:var(--gl-bd);}
+    .fp-mk{color:var(--bk-tx);background:var(--bk-bg);border-color:var(--bk-bd);}
+    .fp-cr{color:var(--cr-tx);background:var(--cr-bg);border-color:var(--cr-bd);}
+    .fp-prog{display:block;font-size:9px;font-weight:700;color:var(--orange);opacity:.85;margin-top:2px;}
+    .f-bulk{font-size:10px;font-weight:700;color:var(--gl-tx);background:var(--gl-bg);border:1px solid var(--gl-bd);border-radius:100px;padding:2px 9px;white-space:nowrap;}
+    .f-api-node{flex-shrink:0;width:108px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;text-align:center;padding:12px 8px;align-self:stretch;}
+    .f-tilt{background:var(--orange);color:#fff;box-shadow:0 2px 8px rgba(191,62,9,0.2);}
+    .f-mukuru-api{background:var(--mk-bg);border:1.5px solid var(--mk-bd);color:var(--mk-tx);}
+    .flow-divl{height:1px;background:var(--bd);margin:7px 0;}
+  </style>
+</head>
+<body>
+<nav class="site-nav">
+  <div class="nav-inner">
+    <div class="nav-brand"><div class="nav-lm">t.</div><span class="nav-name">Tilt Pay API</span></div>
+    <div class="nav-sep"></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showPage('infrastructure')">Infrastructure</button>
+      <button class="nav-tab" onclick="showPage('enterprise')">Enterprise</button>
+      <button class="nav-tab" onclick="showPage('wallet')">Mukuru Wallet</button>
+      <button class="nav-tab" onclick="showPage('crypto')">Crypto</button>
+    </div>
+  </div>
+</nav>
+<div class="pages">
+
+<div id="p-infrastructure" class="page active">
+  <div class="wrap">
+    <div class="page-hero">
+      <h1>Payment <span>infrastructure</span> across Africa</h1>
+      <p>National switches, mobile money bilaterals, bank connections and global rails across nine African markets.</p>
+    </div>
+    <div class="pills">
+      <span class="pill pill-sw">&#9670; 3 national switches</span>
+      <span class="pill pill-mm">&#9670; MTN &amp; Airtel direct</span>
+      <span class="pill pill-bk">&#9670; 9 African markets</span>
+      <span class="pill pill-gl">&#9670; 5 global rails</span>
+      <span class="pill pill-cr">&#9670; Crypto ready</span>
+    </div>
+    <p class="tab-hint">&#9660; Select a market to explore its integrations</p>
+    <div class="tabs" id="infra-tabs"></div>
+    <div class="headline" id="infra-hl"><div class="headline-accent"></div><div class="headline-body" id="infra-hl-body"></div></div>
+    <div id="infra-content"></div>
+    <div class="divider"><div class="divider-line"></div><span class="divider-text">Cross-market infrastructure</span><div class="divider-line"></div></div>
+    <div class="xgrid">
+      <div class="xcard xcard-sw"><div class="xcard-icon">&#10070;</div><div class="xcard-title">3 national switches</div><div class="xcard-body">&#127487;&#127474; NFS &mdash; Zambia<br>&#127468;&#127469; Ghipss &mdash; Ghana<br>&#127479;&#127484; RSwitch &mdash; Rwanda</div></div>
+      <div class="xcard xcard-mm"><div class="xcard-icon">&#9711;</div><div class="xcard-title">MTN &amp; Airtel &mdash; global assets</div><div class="xcard-body">Direct bilaterals active in Uganda &amp; Ghana. Replicable across any Mukuru market where MTN or Airtel operates.</div></div>
+      <div class="xcard xcard-gl"><div class="xcard-icon">&#9671;</div><div class="xcard-title">Global &amp; crypto rails</div><div class="xcard-body">Thunes &middot; Ripple &middot; Cellulant<br>Western Union &middot; MoneyGram<br>Fireblocks &middot; Coinbase</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="p-enterprise" class="page">
+  <div class="wrap">
+    <div class="page-hero">
+      <h1>Enterprise <span>payouts</span></h1>
+      <p>How remittance companies, domestic enterprises and Mukuru clients connect for Africa payouts &mdash; and how the two networks unlock greater value together.</p>
+    </div>
+    <p class="tab-hint">&#9660; Toggle between current and future state</p>
+    <div class="state-toggle">
+      <button class="state-btn active" onclick="setEntState('current',event)">Current state</button>
+      <button class="state-btn" onclick="setEntState('future',event)">Future state &mdash; combined</button>
+    </div>
+
+    <!-- ===== CURRENT STATE ===== -->
+    <div id="ent-current" class="ent-state active">
+      <div class="ent-panels">
+
+        <!-- TILT PANEL -->
+        <div class="ent-panel">
+          <div class="panel-header"><span class="panel-tag tag-tilt">Tilt</span><span class="panel-title">Clients &rarr; Tilt Pay API</span></div>
+
+          <!-- REMITTANCE -->
+          <div class="flow-sec-lbl">REMITTANCE CLIENTS</div>
+          <div class="flow-wrapper" style="margin-bottom:4px">
+            <div class="flow-rows">
+              <div class="flow-row">
+                <div class="flow-client"><div class="client-row" style="margin:0"><img class="client-logo" src="https://logo.clearbit.com/terrapay.com" onerror="this.src='https://www.google.com/s2/favicons?domain=terrapay.com&sz=64'" alt="TerraPay"><span class="client-name">TerraPay</span></div></div>
+                <div class="flow-conn"><div class="fl"></div><span class="f-direct">Direct API</span><div class="fl"></div><span class="farr">&#9658;</span></div>
+              </div>
+              <div class="flow-row">
+                <div class="flow-client"><div class="client-row" style="margin:0"><img class="client-logo" src="https://play-lh.googleusercontent.com/bQmLm1D7n_GK6mdgMNTnk7VhfBXX8YhRDF8aU_CqdE-QFmjCI4XLho0HfJNa-Am7KQ" alt="MoneyGram"><span class="client-name">MoneyGram</span></div></div>
+                <div class="flow-conn"><div class="fl"></div><span class="f-proxy fp-mg">MG Proxy</span><div class="fl"></div><span class="farr">&#9658;</span></div>
+              </div>
+              <div class="flow-row">
+                <div class="flow-client"><div class="client-row" style="margin:0"><img class="client-logo" src="https://cdn.freebiesupply.com/logos/large/2x/ripple-2-logo-png-transparent.png" alt="Ripple"><span class="client-name">Ripple</span></div></div>
+                <div class="flow-conn"><div class="fl"></div><span class="f-proxy fp-rp">Ripple Proxy</span><div class="fl"></div><span class="farr">&#9658;</span></div>
+              </div>
+              <div class="client-others" style="padding-left:4px;margin-bottom:0">+ additional remittance clients</div>
+            </div>
+            <div class="f-api-node f-tilt">Tilt<br>Pay<br>API</div>
+          </div>
+
+          <div class="flow-divl"></div>
+
+          <!-- DOMESTIC API -->
+          <div class="flow-sec-lbl">DOMESTIC API CLIENTS</div>
+          <div class="flow-wrapper" style="margin-bottom:4px">
+            <div class="flow-rows">
+              <div class="flow-row">
+                <div class="flow-client"><div class="client-row" style="margin:0"><span class="sector-icon">&#127968;</span><span class="client-name">Microfinance</span></div></div>
+                <div class="flow-conn"><div class="fl"></div><span class="f-direct">Direct API</span><div class="fl"></div><span class="farr">&#9658;</span></div>
+              </div>
+              <div class="flow-row">
+                <div class="flow-client"><div class="client-row" style="margin:0"><span class="sector-icon">&#127963;</span><span class="client-name">Government</span></div></div>
+                <div class="flow-conn"><div class="fl"></div><span class="f-direct">Direct API</span><div class="fl"></div><span class="farr">&#9658;</span></div>
+              </div>
+              <div class="flow-row">
+                <div class="flow-client"><div class="client-row" style="margin:0"><span class="sector-icon">&#128188;</span><span class="client-name">Payroll</span></div></div>
+                <div class="flow-conn"><div class="fl"></div><span class="f-direct">Direct API</span><div class="fl"></div><span class="farr">&#9658;</span></div>
+              </div>
+              <div class="flow-row">
+                <div class="flow-client"><div class="client-row" style="margin:0"><span class="sector-icon">&#128260;</span><span class="client-name">Aggregators</span></div></div>
+                <div class="flow-conn"><div class="fl"></div><span class="f-direct">Direct API</span><div class="fl"></div><span class="farr">&#9658;</span></div>
+              </div>
+            </div>
+            <div class="f-api-node f-tilt">Tilt<br>Pay<br>API</div>
+          </div>
+
+          <div class="flow-divl"></div>
+
+          <!-- ENTERPRISE PORTAL -->
+          <div class="flow-sec-lbl">ENTERPRISE PORTAL</div>
+          <div class="flow-wrapper">
+            <div class="flow-rows">
+              <div class="flow-row">
+                <div class="flow-client"><div class="client-row" style="margin:0"><span class="sector-icon">&#129309;</span><span class="client-name">NGOs</span></div></div>
+                <div class="flow-conn"><div class="fl"></div><span class="f-bulk">Bulk upload</span><div class="fl"></div><span class="farr">&#9658;</span></div>
+              </div>
+              <div class="flow-row">
+                <div class="flow-client"><div class="client-row" style="margin:0"><span class="sector-icon">&#128203;</span><span class="client-name">Payroll companies</span></div></div>
+                <div class="flow-conn"><div class="fl"></div><span class="f-bulk">Bulk upload</span><div class="fl"></div><span class="farr">&#9658;</span></div>
+              </div>
+              <div class="flow-row">
+                <div class="flow-client"><div class="client-row" style="margin:0"><span class="sector-icon">&#127959;</span><span class="client-name">Construction</span></div></div>
+                <div class="flow-conn"><div class="fl"></div><span class="f-bulk">Bulk upload</span><div class="fl"></div><span class="farr">&#9658;</span></div>
+              </div>
+            </div>
+            <div class="f-api-node f-tilt">Tilt<br>Pay<br>API</div>
+          </div>
+
+          <div class="flow-arrow">&#9660;</div>
+          <div class="dest-row">
+            <div class="dest-card"><div class="dest-card-title">Banks &amp; Wallets</div><div class="dest-card-body">Uganda &middot; Zambia &middot; Ghana<br>Rwanda &middot; Nigeria &middot; Zimbabwe</div></div>
+            <div class="dest-card"><div class="dest-card-title">Global rails</div><div class="dest-card-body">Thunes &middot; Ripple &middot; Western Union &middot; MoneyGram</div></div>
+          </div>
+        </div>
+
+        <div class="ent-sep"><div class="sep-line"></div><div class="sep-text">separate<br>today</div><div class="sep-line"></div></div>
+
+        <!-- MUKURU PANEL -->
+        <div class="ent-panel">
+          <div class="panel-header"><span class="panel-tag tag-mukuru">Mukuru</span><span class="panel-title">Clients &rarr; Mukuru API</span></div>
+          <div class="flow-sec-lbl">REMITTANCE CLIENTS</div>
+          <div class="flow-wrapper">
+            <div class="flow-rows">
+              <div class="flow-row">
+                <div class="flow-client"><div class="client-row" style="margin:0"><img class="client-logo" src="https://logo.clearbit.com/zepz.com" onerror="this.src='https://www.google.com/s2/favicons?domain=zepz.com&sz=64'" alt="Zepz"><span class="client-name">Zepz</span></div></div>
+                <div class="flow-conn"><div class="fl"></div><span class="farr">&#9658;</span></div>
+              </div>
+              <div class="flow-row">
+                <div class="flow-client"><div class="client-row" style="margin:0"><img class="client-logo" src="https://logo.clearbit.com/remitly.com" onerror="this.src='https://www.google.com/s2/favicons?domain=remitly.com&sz=64'" alt="Remitly"><span class="client-name">Remitly</span></div></div>
+                <div class="flow-conn"><div class="fl"></div><span class="farr">&#9658;</span></div>
+              </div>
+              <div class="client-others" style="padding-left:4px">+ additional Mukuru clients</div>
+            </div>
+            <div class="f-api-node f-mukuru-api">Mukuru<br>API</div>
+          </div>
+          <div class="flow-arrow">&#9660;</div>
+          <div class="dest-row">
+            <div class="dest-card"><div class="dest-card-title">Cash payouts</div><div class="dest-card-body">Mukuru agent cash network across Southern &amp; East Africa</div></div>
+            <div class="dest-card"><div class="dest-card-title">Mukuru Wallet</div><div class="dest-card-body">Digital wallet payouts for Mukuru wallet holders</div></div>
+          </div>
+        </div>
+
+      </div>
+      <div style="margin-top:18px;padding:14px 18px;background:var(--srf);border:1px solid var(--bd);border-radius:12px;font-size:13px;color:var(--txt2);box-shadow:0 1px 3px rgba(0,0,0,0.04)"><strong>Note on proxies:</strong> The MG Proxy and Ripple Proxy are adapter services Tilt has already built that translate MoneyGram and Ripple API formats into Tilt Pay API calls &mdash; allowing those clients to route payments without re-integrating. A Mukuru Adaptor would do the same for Mukuru clients.</div>
+    </div>
+
+    <!-- ===== FUTURE STATE ===== -->
+    <div id="ent-future" class="ent-state">
+      <div class="ent-unified">
+        <div class="panel-header" style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--bd)"><span class="panel-tag tag-tilt">Tilt + Mukuru</span><span class="panel-title">All clients &mdash; single unified network</span></div>
+        <div style="background:var(--bk-bg);border:1px solid var(--bk-bd);border-radius:9px;padding:9px 14px;margin-bottom:16px;font-size:12px;color:var(--bk-tx);font-weight:500;">Diagram shows <strong>disbursements</strong> (outbound payouts) &mdash; the same architecture applies equally to <strong>collections</strong> (inbound payments)</div>
+
+        <div style="display:flex;gap:0;align-items:stretch;min-height:380px;">
+
+          <!-- LEFT: all client groups -->
+          <div style="flex:1;display:flex;flex-direction:column;gap:6px;min-width:0;">
+
+            <!-- MUKURU CLIENTS AT TOP: Zepz + Remitly merge into Mukuru Proxy -->
+            <div class="flow-sec-lbl">MUKURU CLIENTS</div>
+            <div style="display:flex;gap:0;align-items:stretch;">
+              <div style="flex-shrink:0;width:158px;display:flex;flex-direction:column;gap:5px;">
+                <div class="client-row" style="margin:0"><img class="client-logo" src="https://logo.clearbit.com/zepz.com" onerror="this.src='https://www.google.com/s2/favicons?domain=zepz.com&sz=64'" alt="Zepz"><span class="client-name">Zepz</span></div>
+                <div class="client-row" style="margin:0"><img class="client-logo" src="https://logo.clearbit.com/remitly.com" onerror="this.src='https://www.google.com/s2/favicons?domain=remitly.com&sz=64'" alt="Remitly"><span class="client-name">Remitly</span></div>
+                <div class="client-others" style="margin:0;padding:2px 12px;font-size:10px">+ other Mukuru clients</div>
+              </div>
+              <div style="flex-shrink:0;width:18px;position:relative;"><div style="position:absolute;top:6%;bottom:6%;left:3px;right:0;border-top:1.5px solid var(--bd2);border-right:1.5px solid var(--bd2);border-bottom:1.5px solid var(--bd2);border-radius:0 4px 4px 0;"></div></div>
+              <div style="display:flex;align-items:center;flex-shrink:0;padding-left:4px;"><div class="f-proxy fp-mk">Mukuru Proxy<span class="fp-prog">To do</span></div></div>
+              <div style="flex:1;display:flex;align-items:center;padding:0 6px;"><div class="fl"></div><span class="farr">&#9658;</span></div>
+            </div>
+
+            <div class="flow-divl"></div>
+
+            <!-- REMITTANCE CLIENTS -->
+            <div class="flow-sec-lbl">REMITTANCE CLIENTS</div>
+            <div class="flow-row">
+              <div class="flow-client"><div class="client-row" style="margin:0"><img class="client-logo" src="https://logo.clearbit.com/terrapay.com" onerror="this.src='https://www.google.com/s2/favicons?domain=terrapay.com&sz=64'" alt="TerraPay"><span class="client-name">TerraPay</span></div></div>
+              <div class="flow-conn"><div class="fl"></div><span class="f-direct">Direct API</span><div class="fl"></div><span class="farr">&#9658;</span></div>
+            </div>
+            <div class="flow-row">
+              <div class="flow-client"><div class="client-row" style="margin:0"><img class="client-logo" src="https://play-lh.googleusercontent.com/bQmLm1D7n_GK6mdgMNTnk7VhfBXX8YhRDF8aU_CqdE-QFmjCI4XLho0HfJNa-Am7KQ" alt="MoneyGram"><span class="client-name">MoneyGram</span></div></div>
+              <div class="flow-conn"><div class="fl"></div><span class="f-proxy fp-mg">MG Proxy</span><div class="fl"></div><span class="farr">&#9658;</span></div>
+            </div>
+            <div class="flow-row">
+              <div class="flow-client"><div class="client-row" style="margin:0"><img class="client-logo" src="https://cdn.freebiesupply.com/logos/large/2x/ripple-2-logo-png-transparent.png" alt="Ripple"><span class="client-name">Ripple</span></div></div>
+              <div class="flow-conn"><div class="fl"></div><span class="f-proxy fp-rp">Ripple Proxy</span><div class="fl"></div><span class="farr">&#9658;</span></div>
+            </div>
+            <div class="client-others" style="padding-left:4px;margin-bottom:0">+ additional remittance clients</div>
+
+            <div class="flow-divl"></div>
+
+            <!-- DOMESTIC API -->
+            <div class="flow-sec-lbl">DOMESTIC API CLIENTS</div>
+            <div class="flow-row">
+              <div class="flow-client"><div class="client-row" style="margin:0"><span class="sector-icon">&#127963;</span><span class="client-name">MF &middot; Gov &middot; Payroll &middot; Agg</span></div></div>
+              <div class="flow-conn"><div class="fl"></div><span class="f-direct">Direct API</span><div class="fl"></div><span class="farr">&#9658;</span></div>
+            </div>
+
+            <div class="flow-divl"></div>
+
+            <!-- ENTERPRISE PORTAL -->
+            <div class="flow-sec-lbl">ENTERPRISE PORTAL</div>
+            <div class="flow-row">
+              <div class="flow-client"><div class="client-row" style="margin:0"><span class="sector-icon">&#128203;</span><span class="client-name">NGOs &middot; Payroll &middot; Construction</span></div></div>
+              <div class="flow-conn"><div class="fl"></div><span class="f-bulk">Bulk upload</span><div class="fl"></div><span class="farr">&#9658;</span></div>
+            </div>
+
+            <div class="flow-divl"></div>
+
+            <!-- CRYPTO ANCHORS -->
+            <div class="flow-sec-lbl">CRYPTO ANCHORS</div>
+            <div class="flow-row">
+              <div class="flow-client"><div class="client-row" style="margin:0"><img class="client-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAJQAngMBIgACEQEDEQH/xAAcAAEAAgMBAQEAAAAAAAAAAAAABwgBAwYFBAL/xABBEAABAwICAg0KBAYDAAAAAAAAAQIDBAUGEQdzEhchMUFUgZOUsbPR0hYyNDZCUVZhcZETVaHBFBUjYuHwIjND/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAIBBAP/xAAdEQEAAwACAwEAAAAAAAAAAAAAAQIREzEDEiFR/9oADAMBAAIRAxEAPwCbAAawAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAc5i/GVtwrTMdWq6Sol/wCmmj893zX3J8yMqvTLe3yqtJb6GGPgbJsnr90VCq0tJqcAQQumLEfFrbzT/ENuLEfFrbzT/EVx2ZqdwQRtxYj4tbeaf4htxYj4tbeaf4hx2NTuCCNuLEfFrbzT/ENuLEfFrbzT/EOOxqdwQRtxYj4tbeaf4htxYj4tbeaf4hx2NTuCGLVpmrmTIl2tkEsXC6mVWuRPkiqqL9yV7HeaG+2+KvtkySwSfLJWrwoqcCkzWa9t16AAJAAAAAAMPcjGOe7eaiqpk1Vfok+rd1AVexRd5r5f624zuVyyyr+Hu7jWJuNRPduJ/uZ5Y/yDsjpAADQAAAAAAAAO90M3mSgxW2gVy/gV7FY5me5s2pm1cvucEdLo09frHr3dm8m/2osqADkWAAAAABqrPRJ9W7qNpqrPRJ9W7qAqSZMGTthAAAH0PutNmud5kfHaaCerczzvwm7ifVV3E+58lPDLUzx09PG6SWVyMYxqZq5y7yFmsFYdhwzYILfHk6Xz6iRPbkXfX9uQ8739WxCtNdRVVvqn0tdTywTs86ORuTkNBPOmHC/83sn80pIldW0DVcqNTNZIt9yfPLfTlIG+hVL+0ExgACmB0ujT1+sevd2bzmjpdGnr9Y9e7s3k26kWVAByLAAAAAA1Vnok+rd1G01Vnok+rd1AVJMmDJ2wgAPRw9ZarEF4prZR7j5nf8n8EbPadyJ+xkzgkPQphdaipfiGtj/pRLsKPZcL95zuTe+uZMyfQ+W2UFPa6CnoaNmwggYjGJ8kPqOS1tnV4w5qORWuRFRdxUXhK56S8MOw3iKRIY1Sgqs5aZeBM/OZyL+ioWNOcx9htuJsOzUiIn8VH/VpnrwPTg+i7xVLZLJhWgH6ljkikdHMxWSMcrXNXfRUXJUU/J1JDpdGnr9Y9e7s3nNHS6NPX6x693ZvJt1IsqADkWAAAAABqrPRJ9W7qNpqrPRJ9W7qAqSZMGTthATrobwwlrs63iqYn8XXtRWZ/wDnDwJy768nuIKJmwZpRs1NYqWivTpqaopY2wo5sKvbI1qZIqbHPg955+WJz42EqA4rbVwf+YT9El8I21cH/mE/RJfCc/rP4rXamTidtXB/5hP0SXwjbVwhx+fokvcPW34a4TTPhdLfcm32lYjaetcjZ0b7MuW4uXzRPuhGvWSRpQx9QYkoYbXZ2yPp2ypLJPIxW7JURURERd3hUjc6qb6/UyHS6NPX6x693ZvOaOl0aev1j17uzeLdSxZUAHIsAAAAADVWeiT6t3UbTXUtV9NK1qZq5jkROQCpIP1Kx0Ur43pk9jlaqe5UXJT8nbCAAAAAAAAAAADpdGnr9Y9e7s3nNHUaL4ny4+s6sTP8OR73fJEY5P3Qm3UiyQAORYAAAAAGTAAg7SlgWqorlPebVC6ahqH7OWONuawPXfXJPZVc1z4MyNc0XeX9S3eSe48iswth+ulWWsslunkX25KZjl6j1r5cjJZirgLOeRWFfhy09DZ3DyKwr8OWnobO4rlhmKxgs55FYV+HLT0NncPIrCvw5aehs7hywYrGCznkVhX4ctPQ2dw8isK/Dlp6GzuHLBisYLOeRWFfhy09DZ3DyKwr8OWnobO4csGKyRsfLI2OJjpJHbzGJmq/ROEnHRNgmextfd7szYVs8ewihXfiYu+q/wByncW6xWi1rnbbXR0q++GBrOpD0MiL+SZjIbEAAPNoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/9k=" alt="Fireblocks"><span class="client-name">Crypto exchanges &amp; blockchains</span></div></div>
+              <div class="flow-conn"><div class="fl"></div><span class="f-proxy fp-cr" style="font-size:10px;padding:4px 10px;">Crypto Anchor</span><div class="fl"></div><span class="farr">&#9658;</span></div>
+            </div>
+
+          </div>
+
+          <!-- CENTER: Tilt Pay API -->
+          <div style="flex-shrink:0;width:128px;padding:0 10px;display:flex;align-items:stretch;">
+            <div class="api-node api-tilt" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;text-align:center;border-radius:14px;padding:16px 8px;line-height:1.4;">Tilt<br>Pay API</div>
+          </div>
+
+          <!-- RIGHT: Destinations -->
+          <div style="flex:0.85;display:flex;flex-direction:column;gap:12px;justify-content:center;padding-left:2px;">
+
+            <div style="display:flex;align-items:center;gap:7px;">
+              <span class="farr">&#9658;</span>
+              <div class="dest-card" style="flex:1;margin:0"><div class="dest-card-title">Banks &amp; Wallets</div><div class="dest-card-body">9 Licensed African markets &middot; all banks &amp; MoMo wallets<br>Global reach through partners</div></div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:7px;">
+              <span class="farr">&#9658;</span>
+              <div class="dest-card" style="flex:1;margin:0"><div class="dest-card-title">Crypto rails</div><div class="dest-card-body">Ripple &middot; Stellar &middot; USDC &middot; Fireblocks</div></div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:7px;">
+              <span class="farr">&#9658;</span>
+              <div class="f-proxy fp-mk" style="flex-shrink:0">Mukuru Adaptor<span class="fp-prog">In progress</span></div>
+              <div class="fl" style="min-width:10px;"></div>
+              <span class="farr">&#9658;</span>
+              <div style="flex:1;background:var(--srf);border:1.5px solid var(--bd);border-radius:12px;padding:10px 12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+                <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--bd);">
+                  <img style="width:22px;height:22px;border-radius:5px;object-fit:contain;background:var(--srf2);padding:2px;flex-shrink:0;border:1px solid var(--bd);" src="https://logo.clearbit.com/mukuru.com" onerror="this.src='https://www.google.com/s2/favicons?domain=mukuru.com&sz=64'" alt="Mukuru">
+                  <span style="font-size:13px;font-weight:700;">Mukuru API</span>
+                </div>
+                <div style="font-size:11px;color:var(--txt2);line-height:1.8;">
+                  <div><span style="color:var(--sw-tx);margin-right:4px">&#10003;</span>Cash payouts</div>
+                  <div><span style="color:var(--sw-tx);margin-right:4px">&#10003;</span>Mukuru Wallet</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+        <div style="background:var(--srf);border:1px solid var(--bd);border-top:3px solid var(--sw);border-radius:0 0 12px 12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)"><div style="font-size:12px;font-weight:700;margin-bottom:6px">Proxy services &mdash; live</div><div style="font-size:12px;color:var(--txt2);line-height:1.6">MG Proxy and Ripple Proxy are already built. MoneyGram and Ripple clients route through Tilt Pay without re-integrating.</div></div>
+        <div style="background:var(--srf);border:1px solid var(--bd);border-top:3px solid var(--bk);border-radius:0 0 12px 12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)"><div style="font-size:12px;font-weight:700;margin-bottom:6px">Mukuru Proxy &mdash; in progress</div><div style="font-size:12px;color:var(--txt2);line-height:1.6">Accepts Mukuru API calls from Zepz, Remitly and others and routes them through Tilt Pay API &mdash; no client re-integration required.</div></div>
+        <div style="background:var(--srf);border:1px solid var(--bd);border-top:3px solid var(--mk);border-radius:0 0 12px 12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)"><div style="font-size:12px;font-weight:700;margin-bottom:6px">Mukuru Adaptor &mdash; outbound</div><div style="font-size:12px;color:var(--txt2);line-height:1.6">Translates Tilt Pay API calls to Mukuru API format, enabling all Tilt clients to access Mukuru&apos;s cash and wallet payout network.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="p-wallet" class="page">
+  <div class="wrap">
+    <div class="page-hero">
+      <h1>Mukuru Wallet <span>integration</span></h1>
+      <p>One integration unlocks the Mukuru Wallet across six markets. Committed to Zimbabwe and Zambia &mdash; those integrations automatically activate Rwanda, Uganda, Nigeria and Ghana.</p>
+    </div>
+    <p class="section-label">Committed integrations</p>
+    <div class="committed-grid">
+      <div class="committed-card"><div class="committed-check">&#10003;</div><div class="committed-flag">&#127487;&#127484;</div><div class="committed-country">Zimbabwe</div><div class="committed-switch">Zimswitch</div><div class="committed-desc">Mukuru Wallet via Zimswitch &mdash; real-time transfers to all banks and mobile wallets plus merchant payments via the national switch.</div></div>
+      <div class="committed-card"><div class="committed-check">&#10003;</div><div class="committed-flag">&#127487;&#127474;</div><div class="committed-country">Zambia</div><div class="committed-switch">NFS + Request to Pay</div><div class="committed-desc">Mukuru Wallet via NFS with real-time access to all Zambian banks and direct Request to Pay across MTN, Airtel and Zamtel wallets.</div></div>
+    </div>
+    <p class="section-label">Capabilities enabled across all integrated markets</p>
+    <div class="caps-grid">
+      <div class="cap-card"><div class="cap-icon">&#8594;</div><div class="cap-title">Sends</div><div class="cap-sub">Disburse from Mukuru Wallet to any bank account or mobile money wallet in the network</div></div>
+      <div class="cap-card"><div class="cap-icon">&#8592;</div><div class="cap-title">Receives</div><div class="cap-sub">Accept inbound transfers from banks and mobile money wallets into the Mukuru Wallet</div></div>
+      <div class="cap-card"><div class="cap-icon">&#9654;</div><div class="cap-title">Request to Pay</div><div class="cap-sub">Send payment requests to mobile money wallets for customer-approved fund pulls</div></div>
+      <div class="cap-card"><div class="cap-icon">&#9632;</div><div class="cap-title">Merchant payments</div><div class="cap-sub">Accept in-store and online merchant payments via QR code and POS integrations</div></div>
+      <div class="cap-card"><div class="cap-icon">&#9883;</div><div class="cap-title">Utilities</div><div class="cap-sub">Bill payments and airtime top-ups for all major utility providers across all markets</div></div>
+    </div>
+    <p class="section-label">Auto-unlocked markets</p>
+    <div class="unlock-banner"><strong>One integration. Six markets.</strong> Integrating for Zimbabwe and Zambia means the Mukuru Wallet is already connected to Tilt Pay API&#39;s full country network. No additional integration is required to launch in Rwanda, Uganda, Nigeria or Ghana.</div>
+    <div class="unlock-grid">
+      <div class="unlock-card"><div class="unlock-flag">&#127479;&#127484;</div><div class="unlock-country">Rwanda</div><div class="unlock-via">RSwitch &middot; all banks &amp; wallets</div><div class="unlock-auto">Auto-unlocked</div></div>
+      <div class="unlock-card"><div class="unlock-flag">&#127482;&#127468;</div><div class="unlock-country">Uganda</div><div class="unlock-via">MTN &amp; Airtel direct &middot; ABSA &middot; Stanbic</div><div class="unlock-auto">Auto-unlocked</div></div>
+      <div class="unlock-card"><div class="unlock-flag">&#127475;&#127468;</div><div class="unlock-country">Nigeria</div><div class="unlock-via">9PSB &middot; Paystack</div><div class="unlock-auto">Auto-unlocked</div></div>
+      <div class="unlock-card"><div class="unlock-flag">&#127468;&#127469;</div><div class="unlock-country">Ghana</div><div class="unlock-via">Ghipss &middot; MTN direct &middot; FAB &middot; Omni</div><div class="unlock-auto">Auto-unlocked</div></div>
+      <div class="unlock-card"><div class="unlock-flag"><img style="width:26px;height:26px;border-radius:6px;object-fit:contain;background:#fff;padding:2px;display:block;" src="data:image/jpeg;base64,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" alt="Fireblocks"></div><div class="unlock-country">Crypto</div><div class="unlock-via">Fireblocks &middot; all stablecoins &middot; all chains</div><div class="unlock-auto">Auto-unlocked</div></div>
+    </div>
+    <p class="section-label">Market capability overview</p>
+    <table class="mkt-matrix">
+      <thead><tr><th>Market</th><th>Status</th><th>Sends</th><th>Receives</th><th>Req. to Pay</th><th>Merchant</th><th>Utilities</th><th>Key integration</th></tr></thead>
+      <tbody>
+        <tr><td>&#127487;&#127484; Zimbabwe</td><td><span class="status-commit">Committed</span></td><td class="check-yes">&#10003;</td><td class="check-yes">&#10003;</td><td class="check-no">&mdash;</td><td class="check-yes">&#10003;</td><td class="check-no">&mdash;</td><td>Zimswitch</td></tr>
+        <tr><td>&#127487;&#127474; Zambia</td><td><span class="status-commit">Committed</span></td><td class="check-yes">&#10003;</td><td class="check-yes">&#10003;</td><td class="check-yes">&#10003;</td><td class="check-yes">&#10003;</td><td class="check-yes">&#10003;</td><td>NFS &middot; MTN, Airtel, Zamtel</td></tr>
+        <tr><td>&#127479;&#127484; Rwanda</td><td><span class="status-auto">Auto-unlocked</span></td><td class="check-yes">&#10003;</td><td class="check-yes">&#10003;</td><td class="check-yes">&#10003;</td><td class="check-yes">&#10003;</td><td class="check-no">&mdash;</td><td>RSwitch</td></tr>
+        <tr><td>&#127482;&#127468; Uganda</td><td><span class="status-auto">Auto-unlocked</span></td><td class="check-yes">&#10003;</td><td class="check-yes">&#10003;</td><td class="check-yes">&#10003;</td><td class="check-yes">&#10003;</td><td class="check-no">&mdash;</td><td>MTN &amp; Airtel direct</td></tr>
+        <tr><td>&#127475;&#127468; Nigeria</td><td><span class="status-auto">Auto-unlocked</span></td><td class="check-yes">&#10003;</td><td class="check-yes">&#10003;</td><td class="check-no">&mdash;</td><td class="check-no">&mdash;</td><td class="check-no">&mdash;</td><td>9PSB &middot; Paystack</td></tr>
+        <tr><td>&#127468;&#127469; Ghana</td><td><span class="status-auto">Auto-unlocked</span></td><td class="check-yes">&#10003;</td><td class="check-yes">&#10003;</td><td class="check-yes">&#10003;</td><td class="check-yes">&#10003;</td><td class="check-no">&mdash;</td><td>Ghipss &middot; MTN direct</td></tr>
+        <tr><td><img style="width:18px;height:18px;border-radius:4px;object-fit:contain;background:#fff;padding:1px;vertical-align:middle;margin-right:4px;" src="data:image/jpeg;base64,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" alt="Fireblocks">Crypto</td><td><span class="status-auto">Auto-unlocked</span></td><td class="check-yes">&#10003;</td><td class="check-yes">&#10003;</td><td class="check-no">&mdash;</td><td class="check-no">&mdash;</td><td class="check-no">&mdash;</td><td>Fireblocks &middot; all stablecoins &middot; all chains</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<div id="p-crypto" class="page">
+  <div class="wrap">
+    <div class="page-hero">
+      <h1>Crypto <span>infrastructure</span> for African payments</h1>
+      <p>Tilt Pay API connects Mukuru to global crypto rails &mdash; stablecoin settlement, JIT remittance, crypto-backed cards and hard-currency virtual accounts &mdash; all without requiring Mukuru to build any of this themselves.</p>
+    </div>
+    <div style="background:var(--mm-bg);border:1px solid var(--mm-bd);border-left:3px solid var(--mm);border-radius:0 12px 12px 0;padding:14px 18px;margin-bottom:28px;display:flex;align-items:flex-start;gap:12px;">
+      <span style="font-size:18px;flex-shrink:0;margin-top:1px">&#9888;</span>
+      <div><div style="font-size:13px;font-weight:700;color:var(--mm-tx);margin-bottom:3px">Future roadmap &mdash; not all capabilities are live today</div><div style="font-size:12px;color:var(--txt2);line-height:1.5">This page describes Tilt Pay API&apos;s planned crypto infrastructure. Ripple and Fireblocks integrations are active today; Stellar, Circle Mint/Redeem, Bridge crypto cards and virtual accounts are planned capabilities on the roadmap.</div></div>
+    </div>
+
+
+    <p class="section-label">Core crypto capabilities</p>
+    <div class="crypto-caps-grid">
+      <div class="crypto-cap"><div class="crypto-cap-icon">&#8595;</div><div class="crypto-cap-title">Crypto &rarr; Fiat</div><div class="crypto-cap-sub">Receive stablecoins or crypto from global partners and disburse local currency across all 9 Tilt Pay API markets</div></div>
+      <div class="crypto-cap"><div class="crypto-cap-icon">&#8593;</div><div class="crypto-cap-title">Fiat &rarr; Crypto</div><div class="crypto-cap-sub">Accept local African currency and settle to USDC, USDT or other stablecoins in any global wallet</div></div>
+      <div class="crypto-cap"><div class="crypto-cap-icon">&#9889;</div><div class="crypto-cap-title">JIT Settlement</div><div class="crypto-cap-sub">Fund remittance transactions just-in-time using crypto &mdash; no pre-funded accounts needed in receiving countries</div></div>
+      <div class="crypto-cap"><div class="crypto-cap-icon">&#128274;</div><div class="crypto-cap-title">Crypto custody</div><div class="crypto-cap-sub">Institutional-grade crypto storage via Fireblocks &mdash; multi-sig, HSM security for Mukuru and its clients</div></div>
+      <div class="crypto-cap"><div class="crypto-cap-icon">&#128179;</div><div class="crypto-cap-title">Card issuing</div><div class="crypto-cap-sub">Crypto-backed Visa/Mastercard cards issued to Mukuru wallet holders &mdash; accepted globally with no cross-border restrictions</div></div>
+      <div class="crypto-cap"><div class="crypto-cap-icon">&#127968;</div><div class="crypto-cap-title">Virtual accounts</div><div class="crypto-cap-sub">USD, EUR and GBP virtual account numbers for Mukuru clients, settled back to stablecoin via Tilt Pay API</div></div>
+    </div>
+
+    <p class="section-label">Payment network partners</p>
+    <div class="partner-grid">
+      <div class="partner-card"><img class="partner-logo" src="https://cdn.freebiesupply.com/logos/large/2x/ripple-2-logo-png-transparent.png" alt="Ripple"><div class="partner-info"><div class="partner-name">Ripple</div><div class="partner-role">ODL &middot; XRP settlement</div></div></div>
+      <div class="partner-card"><img class="partner-logo" src="https://logo.clearbit.com/stellar.org" onerror="this.src='https://www.google.com/s2/favicons?domain=stellar.org&sz=64'" alt="Stellar"><div class="partner-info"><div class="partner-name">Stellar</div><div class="partner-role">Fast blockchain &middot; USDC</div></div></div>
+      <div class="partner-card"><img class="partner-logo" src="https://logo.clearbit.com/circle.com" onerror="this.src='https://www.google.com/s2/favicons?domain=circle.com&sz=64'" alt="Circle"><div class="partner-info"><div class="partner-name">Circle</div><div class="partner-role">USDC issuer &middot; Mint &amp; Redeem</div></div></div>
+      <div class="partner-card"><img class="partner-logo" src="data:image/jpeg;base64,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" alt="Fireblocks"><div class="partner-info"><div class="partner-name">Fireblocks</div><div class="partner-role">Institutional custody</div></div></div>
+      <div class="partner-card"><img class="partner-logo" src="https://logo.clearbit.com/bridge.xyz" onerror="this.src='https://www.google.com/s2/favicons?domain=bridge.xyz&sz=64'" alt="Bridge"><div class="partner-info"><div class="partner-name">Bridge</div><div class="partner-role">Crypto card issuing</div></div></div>
+    </div>
+
+    <div class="divider"><div class="divider-line"></div><span class="divider-text">Detailed capabilities</span><div class="divider-line"></div></div>
+
+    <div class="crypto-detail-grid">
+
+      <div class="crypto-detail">
+        <div class="crypto-detail-hdr">
+          <div class="crypto-detail-icon" style="background:rgba(74,66,176,0.08);color:#4a42b0">&#9889;</div>
+          <div><div class="crypto-detail-title">Just-in-time remittance settlement</div></div>
+        </div>
+        <p style="font-size:12px;color:var(--txt2);line-height:1.6;margin-bottom:12px">Sending partners fund payments using crypto instead of pre-funding local accounts. Tilt Pay API converts and disburses local currency the moment the transaction is initiated.</p>
+        <div class="crypto-flow">
+          <span class="cf-node">Sending partner (USD/EUR)</span><span class="cf-arr">&#8594;</span>
+          <span class="cf-node">USDC / XRP</span><span class="cf-arr">&#8594;</span>
+          <span class="cf-node" style="background:var(--orange);color:#fff;border-color:var(--orange);">Tilt Pay API</span><span class="cf-arr">&#8594;</span>
+          <span class="cf-node">Local currency</span><span class="cf-arr">&#8594;</span>
+          <span class="cf-node">Recipient</span>
+        </div>
+        <div class="crypto-bullets">
+          <div class="crypto-bullet"><div class="cb-dot"></div><div class="cb-text">No pre-funded accounts in receiving countries &mdash; capital efficiency for remittance partners</div></div>
+          <div class="crypto-bullet"><div class="cb-dot"></div><div class="cb-text">Settlement in seconds vs. days on traditional correspondent banking rails</div></div>
+          <div class="crypto-bullet"><div class="cb-dot"></div><div class="cb-text">Works across all 9 Tilt Pay API markets from a single crypto funding source</div></div>
+          <div class="crypto-bullet"><div class="cb-dot"></div><div class="cb-text">Ripple ODL and Stellar provide the fastest crypto settlement rails for this use case</div></div>
+        </div>
+      </div>
+
+      <div class="crypto-detail">
+        <div class="crypto-detail-hdr">
+          <div class="crypto-detail-icon" style="background:rgba(21,135,95,0.08);color:#15875f">&#9854;</div>
+          <div><div class="crypto-detail-title">Stablecoin Mint &amp; Redeem</div></div>
+        </div>
+        <p style="font-size:12px;color:var(--txt2);line-height:1.6;margin-bottom:12px">A Mint &amp; Redeem agreement with Circle means Mukuru can convert between USD fiat and USDC at 1:1 with no spread &mdash; eliminating FX exposure when holding stablecoins.</p>
+        <div class="crypto-flow">
+          <span class="cf-node" style="background:rgba(21,135,95,0.07);border-color:rgba(21,135,95,0.22)">USD fiat</span><span class="cf-arr">&#8594;</span>
+          <span class="cf-node">Mint (Circle)</span><span class="cf-arr">&#8594;</span>
+          <span class="cf-node" style="background:var(--orange);color:#fff;border-color:var(--orange);">Tilt Pay API</span><span class="cf-arr">&#8644;</span>
+          <span class="cf-node">USDC</span><span class="cf-arr">&#8644;</span>
+          <span class="cf-node" style="background:var(--orange);color:#fff;border-color:var(--orange);">Tilt Pay API</span><span class="cf-arr">&#8594;</span>
+          <span class="cf-node">Redeem (Circle)</span><span class="cf-arr">&#8594;</span>
+          <span class="cf-node" style="background:rgba(21,135,95,0.07);border-color:rgba(21,135,95,0.22)">USD fiat</span>
+        </div>
+        <div class="crypto-bullets">
+          <div class="crypto-bullet"><div class="cb-dot"></div><div class="cb-text">1 USDC = 1 USD always &mdash; no market spread, no exchange rate risk on stablecoin holdings</div></div>
+          <div class="crypto-bullet"><div class="cb-dot"></div><div class="cb-text">Mukuru can be long in USDC without losing money vs. holding USD fiat</div></div>
+          <div class="crypto-bullet"><div class="cb-dot"></div><div class="cb-text">Instant liquidity management &mdash; mint when you need USDC, redeem when you need fiat</div></div>
+          <div class="crypto-bullet"><div class="cb-dot"></div><div class="cb-text">Tilt Pay API integrates directly with Circle&apos;s API for seamless mint/redeem operations</div></div>
+        </div>
+      </div>
+
+      <div class="crypto-detail">
+        <div class="crypto-detail-hdr">
+          <div class="crypto-detail-icon" style="background:rgba(154,94,10,0.08);color:#9a5e0a">&#128179;</div>
+          <div><div class="crypto-detail-title">Crypto-backed cards via Bridge</div></div>
+        </div>
+        <p style="font-size:12px;color:var(--txt2);line-height:1.6;margin-bottom:12px">Bridge issues Visa/Mastercard-branded cards backed by stablecoin balances. Unlike traditional cards, these are not restricted by cross-border card routing rules &mdash; they work anywhere in the world.</p>
+        <div class="crypto-flow">
+          <span class="cf-node">Mukuru Wallet (USDC)</span><span class="cf-arr">&#8594;</span>
+          <span class="cf-node" style="background:var(--orange);color:#fff;border-color:var(--orange);">Tilt Pay API</span><span class="cf-arr">&#8594;</span>
+          <span class="cf-node">Bridge card</span><span class="cf-arr">&#8594;</span>
+          <span class="cf-node">Visa / Mastercard</span><span class="cf-arr">&#8594;</span>
+          <span class="cf-node">Any merchant globally</span>
+        </div>
+        <div class="crypto-bullets">
+          <div class="crypto-bullet"><div class="cb-dot"></div><div class="cb-text">Cards linked to USDC balance in Mukuru wallet &mdash; no bank account required</div></div>
+          <div class="crypto-bullet"><div class="cb-dot"></div><div class="cb-text">No traditional cross-border card restrictions &mdash; no BIN routing limits, no issuer country blocks</div></div>
+          <div class="crypto-bullet"><div class="cb-dot"></div><div class="cb-text">Settlement happens in stablecoin rails, bypassing correspondent banking entirely</div></div>
+          <div class="crypto-bullet"><div class="cb-dot"></div><div class="cb-text">Tilt Pay API connects the card to Mukuru&apos;s wallet infrastructure &mdash; single integration</div></div>
+        </div>
+      </div>
+
+      <div class="crypto-detail">
+        <div class="crypto-detail-hdr">
+          <div class="crypto-detail-icon" style="background:rgba(104,41,192,0.08);color:#6829c0">&#127968;</div>
+          <div><div class="crypto-detail-title">USD / EUR / GBP virtual accounts</div></div>
+        </div>
+        <p style="font-size:12px;color:var(--txt2);line-height:1.6;margin-bottom:12px">Companies and individuals can receive hard-currency payments via real-looking account numbers (US routing, IBAN, UK sort code) without needing a traditional bank account &mdash; settled back to USDC via Tilt Pay API.</p>
+        <div class="crypto-flow">
+          <span class="cf-node">USD / EUR / GBP sender</span><span class="cf-arr">&#8594;</span>
+          <span class="cf-node">Virtual IBAN / ACH</span><span class="cf-arr">&#8594;</span>
+          <span class="cf-node">USDC</span><span class="cf-arr">&#8594;</span>
+          <span class="cf-node" style="background:var(--orange);color:#fff;border-color:var(--orange);">Tilt Pay API</span><span class="cf-arr">&#8594;</span>
+          <span class="cf-node">Mukuru Wallet</span>
+        </div>
+        <div class="crypto-bullets">
+          <div class="crypto-bullet"><div class="cb-dot"></div><div class="cb-text">African businesses can invoice internationally in USD, EUR or GBP without a US/EU/UK bank</div></div>
+          <div class="crypto-bullet"><div class="cb-dot"></div><div class="cb-text">Diaspora senders can pay into a familiar bank account number that routes to Mukuru wallet</div></div>
+          <div class="crypto-bullet"><div class="cb-dot"></div><div class="cb-text">Received funds auto-settle to USDC and connect back through Tilt Pay API to Mukuru</div></div>
+          <div class="crypto-bullet"><div class="cb-dot"></div><div class="cb-text">No correspondent banking &mdash; faster, cheaper and more accessible for underserved markets</div></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tilt-benefit-banner">
+      <div class="tilt-benefit-icon">&#9889;</div>
+      <div>
+        <div class="tilt-benefit-title">All of this via one Tilt Pay API integration &mdash; zero additional development for Mukuru</div>
+        <div class="tilt-benefit-body">Tilt Pay API is already integrated with Ripple, Fireblocks and Coinbase. Stellar, Circle Mint/Redeem and Bridge card issuing are the next layer to activate. Mukuru benefits from every one of these capabilities through their existing Tilt integration &mdash; without navigating technical complexity, or building separate infrastructure. One API. The entire crypto ecosystem.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+<script>
+const L={
+  nfs:'https://media.licdn.com/dms/image/v2/C560BAQGT6UosWQrKQg/company-logo_200_200/company-logo_200_200/0/1631426964473/zambia_electronic_clearing_house_logo?e=2147483647&v=beta&t=GKFXHCyAxLRN1o9AJNmZXYKTFfc9cZFcwTVieUrZHH4',
+  mtn:'https://upload.wikimedia.org/wikipedia/commons/9/93/New-mtn-logo.jpg',
+  airtel:'https://static0.xdaimages.com/wordpress/wp-content/uploads/2021/07/Airtel-logo-on-white-background.jpg',
+  zamtel:'https://upload.wikimedia.org/wikipedia/en/a/a1/ZAMTEL_LOGO.gif',
+  ghipss:'https://www.google.com/s2/favicons?domain=ghipss.net&sz=64',
+  fab:'https://firstatlanticbank.com.gh/images/news/fablogo34-300x285.webp',
+  omni:'https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=100077410772133',
+  rswitch:'https://i0.wp.com/fintech-consult.com/wp-content/uploads/2021/01/RSwitch.png?fit=200%2C200&ssl=1',
+  peg:'https://media.licdn.com/dms/image/v2/C4E0BAQF7TpO9V3nbWQ/company-logo_200_200/company-logo_200_200/0/1631359840467?e=2147483647&v=beta&t=-bkWStI_HjS_mJO6F2rBmNkI7nvgCZwVOGW2HCsdPLQ',
+  abc:'https://www.google.com/s2/favicons?domain=agentbanking.co.ug&sz=64',
+  absa:'https://quantifyyourfuture.co.za/wp-content/uploads/2022/05/QYF_sponsor-logos_Absa.png',
+  stanbic:'https://e7.pngegg.com/pngimages/397/605/png-clipart-standard-bank-finance-financial-services-funding-bank-emblem-trademark-thumbnail.png',
+  psb:'https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=100069389726566',
+  paystack:'https://logosandtypes.com/wp-content/uploads/2024/02/Paystack.png',
+  thunes:'https://www.temenos.com/wp-content/uploads/2025/05/thunes-768x432.jpg',
+  ripple:'https://cdn.freebiesupply.com/logos/large/2x/ripple-2-logo-png-transparent.png',
+  cellulant:'https://avatars.githubusercontent.com/u/32707452?s=200&v=4',
+  wu:'https://companieslogo.com/img/orig/WU-1a8f4ddc.png?t=1720244494',
+  mg:'https://play-lh.googleusercontent.com/bQmLm1D7n_GK6mdgMNTnk7VhfBXX8YhRDF8aU_CqdE-QFmjCI4XLho0HfJNa-Am7KQ',
+  fireblocks:'data:image/jpeg;base64,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',
+  coinbase:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJ0AAACUCAMAAAC+99ssAAAAh1BMVEX///8AUv8ARP+YqP8ATv8ARv8ASv8AUP8ATP8AQv8APP8ASP8APv/L1v8ANv8AQP/2+P/x9P/q7//m6/9aff9Yev+er/9Mcf9yhP9xjf8AMv+quP9hhP/Y3/99lP/c4//Ayv+Gnf+Sov9EbP+vwP89X/9Mdf8wWv/H0P83Y/9CaP+3xf8AK//8WwVmAAAEIklEQVR4nO2cW3uiMBCGAROOKqgIpYocFBHY///7Fur2abs1AZIAc5Hv3vASkslkDiqKlJSUlJSUlJSUlJSUVI+8fRKnpyw6+0ffj7KgiZO9tzTUU4cmj66GbbsadnRddxzNsm2zfstvycJkXrKqVRPryFB/ykA6NtUii5ebwjgIt9YvsO+IeFvlm0XYNn5pmUSyTyFNDZu50XZNtTXJs/ZzBm3ztJ8Trrm7/dP2bQLdazAb22Yc2/MDF+ksbN4KOyPZOpn25TA9XFzhYevtlxw1nRouWI/9qF8y7MtuUjifdeKewvWEX3dTYh62Vro+mfHbqDonXLd5b9PANTrihmsXn7aaAu7miIDr9sYEljlFYuBaPCwcL8Wi4CaYvcQQB9etvYdIuEPBboNfCSGRXt9REwrX2r1SHFzuCoZrT42zKLiHznV8EfAE7QyvFLvonjIsMUfuxZoArl16oQi4zeD7g2m291nTRMawH2ABJ64XDjn6TQsXof8WXaI3/17pAy5rrVlR+b/tze59jNFeW1dp/OlZeskjuG+1fvPtZtx0at9TkFZGvydhn1W9fAbmjWUEff6mg/LXH2gXFH3bybnwwe1D+gpClk++SO8uPevPUPkmr6GvOr2kO+KbK/0ItPhWXkV9eVzGPb8/hGvq5Nk8cPE79c3fBlwAMyqee+Kgu9Bu/VY4KDgX0fDMIzvcoaYYBf0+LLDkRZRtb6jsjl5KGRcZQy29V1NOG5fdVcnIO85YD3e+Y8qFyWT3BSijOvmIcU6U5fvOGlo5kHesoY4atCYbJps1dBGQT6KRY8Zko66zuvA+cTWb1cihzsRvi2o2OI9sT6yxRjQlurBGyXbWJiVxxGKs3+iFpDc1UMpElxI9cIa1siIaJ43tMDsRB7TT0YOR9z8eY5u+RH7dPwzZL2JI14mYcmkX0jmGCobRzlvttdZXFnvsnUkGBUcMwz3yFUEBy9x5R5KBt+ZLKxG1u5Lo1rMnDV/RkUyULTQ2yEhXkehGOE8L0IGYO9hfFvSu8I4kewfBosC2xrBPMuBeAGwPSqj3mYv2PmF77pRbz+j3FX/rgX1jBH7bhh2pgB3lERYho+SyOCJksKOLsCOzM0S1fXY44BmB3mxKn52fNJvCnYmqJ81E9Wfxzgtm8ZRTXwYUo/w13wwZUEXpLTEiZo97K6f4s8dTZt45V93Hs0BXLcCu+ABeLQO80gh2lRbwCjdFOfJWQf8vkdWB4isrTaEhQNBVqcAreoFXQwOvJBeFN1EVPvAOBuDdHwrszhkFeNdR17Glwe3Yam8zkLvdFNidgp2a46jlh9x61uSVl47pUEXzdqh2Atzd+6EhndHFQp3RnbxkVUHtKn/q/458jJ8d+dniHfn/9P3fDM6w/s1ASkpKSkpKSkpKSkoKsv4C/uFbt5ZPR/0AAAAASUVORK5CYII=',
+  zimswitch:'https://www.google.com/s2/favicons?domain=zimswitch.co.zw&sz=64'
+};
+const BT={s:'bs',m:'bm',b:'bb',g:'bg',c:'bc',x:'bx'};
+const IT={s:'is',m:'im',b:'ib',g:'ig',c:'ic',x:'ix'};
+const BL={s:'Switch',m:'MoMo',b:'Bank',g:'Global',c:'Crypto',x:'Service'};
+const typeColors={s:'var(--sw-bg)',m:'var(--mm-bg)',b:'var(--bk-bg)',g:'var(--gl-bg)',c:'var(--cr-bg)',x:'var(--xv-bg)'};
+const typeText={s:'var(--sw-tx)',m:'var(--mm-tx)',b:'var(--bk-tx)',g:'var(--gl-tx)',c:'var(--cr-tx)',x:'var(--xv-tx)'};
+const typeBd={s:'var(--sw-bd)',m:'var(--mm-bd)',b:'var(--bk-bd)',g:'var(--gl-bd)',c:'var(--cr-bd)',x:'var(--xv-bd)'};
+const mkt=[
+  {id:'zambia',lbl:'Zambia',fl:'&#127487;&#127474;',
+   hd:'NFS &mdash; National Financial Switch + MoMo Request to Pay',sb:'Real-time disbursements and collections to every bank and wallet in Zambia, plus direct Request to Pay across all three mobile money providers',
+   d:[{types:['b','m'],l:'NFS direct integration',s:'Real-time account name lookup &middot; disburse to all bank accounts &amp; MoMo wallets nationwide',logo:L.nfs,abbr:'NFS'}],
+   c:[{types:['b','m'],l:'Virtual accounts via NFS',s:'Any bank account or MoMo wallet can push funds into a Tilt virtual account via the national switch',logo:L.nfs,abbr:'NFS'},
+      {types:['m'],l:'Request to Pay &mdash; MTN, Airtel &amp; Zamtel',s:'Direct bilateral pull from all 3 mobile money wallets with customer approval',logos:[{url:L.mtn,n:'MTN'},{url:L.airtel,n:'Airtel'},{url:L.zamtel,n:'Zamtel'}]}],
+   v:[{types:['x'],l:'Utilities &amp; airtime',s:'Bill payments and mobile top-ups',logo:null,abbr:'UTL'},
+      {types:['x'],l:'eBOP &amp; TPIN reporting',s:'Real-time cross-border transaction compliance reporting to Bank of Zambia',logo:null,abbr:'eBOP'},
+      {types:['x'],l:'FISP integration',s:'Farmer fund collection &mdash; Fertiliser Input Support Programme',logo:null,abbr:'FISP'}]},
+  {id:'uganda',lbl:'Uganda',fl:'&#127482;&#127468;',
+   hd:'MTN &amp; Airtel direct bilaterals + bank payouts',sb:'Direct MoMo integrations with MTN &amp; Airtel, plus bank account payouts via Pegasus and ABC',
+   d:[{types:['m'],l:'MTN Uganda',s:'Direct bilateral &mdash; MoMo wallet disbursements',logo:L.mtn,abbr:'MTN'},
+      {types:['m'],l:'Airtel Uganda',s:'Direct bilateral &mdash; MoMo wallet disbursements',logo:L.airtel,abbr:'AT'},
+      {types:['b'],l:'Pegasus',s:'Bank account disbursements',logo:L.peg,abbr:'PEG'},
+      {types:['b'],l:'ABC',s:'Bank account disbursements via agent banking network',logo:L.abc,abbr:'ABC'}],
+   c:[{types:['b'],l:'Virtual reference &mdash; ABSA',s:'Large transfers auto-allocated to wallet via bank reference',logo:L.absa,abbr:'ABSA'},
+      {types:['b'],l:'Virtual reference &mdash; Stanbic',s:'Large transfers auto-allocated to wallet via bank reference',logo:L.stanbic,abbr:'SBK'},
+      {types:['m'],l:'Request to Pay &mdash; MTN',s:'Direct pull from MTN wallets',logo:L.mtn,abbr:'MTN'},
+      {types:['m'],l:'Request to Pay &mdash; Airtel',s:'Direct pull from Airtel wallets',logo:L.airtel,abbr:'AT'}],
+   v:[]},
+  {id:'ghana',lbl:'Ghana',fl:'&#127468;&#127469;',
+   hd:'Ghipss switch + MTN direct + bank backups',sb:'National switch as primary route covering all banks &amp; wallets, with bilateral MTN and two bank redundancy options',
+   d:[{types:['b','m'],l:'Ghipss national switch',s:'Disbursements to all bank accounts &amp; mobile money wallets nationwide',logo:L.ghipss,abbr:'GH'},
+      {types:['b','m'],l:'FAB Bank',s:'Bilateral backup &mdash; access to all banks &amp; wallets via Ghipss',logo:L.fab,abbr:'FAB'},
+      {types:['b','m'],l:'Omni Bank',s:'Bilateral backup &mdash; access to all banks &amp; wallets via Ghipss',logo:L.omni,abbr:'OB'},
+      {types:['m'],l:'MTN Ghana',s:'Direct bilateral &mdash; MTN MoMo disbursements',logo:L.mtn,abbr:'MTN'}],
+   c:[{types:['m'],l:'MTN Request to Pay',s:'Direct connection',logo:L.mtn,abbr:'MTN'},
+      {types:['m'],l:'Airtel Request to Pay',s:'Via FAB Bank connection',logo:L.airtel,abbr:'AT'}],
+   v:[]},
+  {id:'rwanda',lbl:'Rwanda',fl:'&#127479;&#127484;',
+   hd:'RSwitch &mdash; national financial switch',sb:"Domestic and international money transfers via Rwanda's national payments infrastructure",
+   d:[{types:['b','m'],l:'RSwitch integration',s:'Domestic &amp; IMT transactions to all bank accounts and mobile money wallets',logo:L.rswitch,abbr:'RS'}],
+   c:[{types:['b','m'],l:'Virtual accounts via RSwitch',s:'Any bank account or MoMo wallet can push funds in via the national switch',logo:L.rswitch,abbr:'RS'}],
+   v:[]},
+  {id:'nigeria',lbl:'Nigeria',fl:'&#127475;&#127468;',
+   hd:'9PSB + Paystack',sb:'Wallet and bank account access via fintech payment rails',
+   d:[{types:['b'],l:'9PSB',s:'Disbursements to wallets &amp; bank accounts',logo:L.psb,abbr:'9PSB'},
+      {types:['b'],l:'Paystack',s:'Disbursements to wallets &amp; bank accounts',logo:L.paystack,abbr:'PS'}],
+   c:[{types:['b'],l:'Virtual accounts &mdash; 9PSB',s:'Receive funds via 9PSB virtual account infrastructure',logo:L.psb,abbr:'9PSB'}],
+   v:[]},
+  {id:'zimbabwe',lbl:'Zimbabwe',fl:'&#127487;&#127484;',
+   hd:'Zimswitch &mdash; national payments infrastructure',sb:'Direct Zimswitch integration enabling real-time bank and wallet transactions plus merchant payments across Zimbabwe',
+   d:[{types:['b','m'],l:'Zimswitch',s:'National switch &mdash; real-time disbursements to all banks &amp; mobile wallets nationwide',logo:L.zimswitch,abbr:'ZS'}],
+   c:[{types:['b','m'],l:'Virtual accounts via Zimswitch',s:'Any bank account or mobile wallet can push funds into a Tilt virtual account via Zimswitch',logo:L.zimswitch,abbr:'ZS'}],
+   v:[{types:['x'],l:'Merchant payments via Zimswitch',s:'POS and in-store merchant payment acceptance through the Zimswitch network',logo:null,abbr:'MER'}]},
+  {id:'global',lbl:'Global',fl:'&#127758;',
+   hd:'Cross-border sending &amp; receiving',sb:'Five global aggregators enabling remittance flows across 100+ countries',
+   d:[{types:['g'],l:'Thunes',s:'Global B2B payment sending',logo:L.thunes,abbr:'TH'},
+      {types:['g'],l:'Ripple (RippleNet)',s:'Global sending via Ripple rails',logo:L.ripple,abbr:'XRP'},
+      {types:['g'],l:'Cellulant',s:'Pan-African payment sending',logo:L.cellulant,abbr:'CL'},
+      {types:['g'],l:'Western Union',s:'Send &amp; receive globally',logo:L.wu,abbr:'WU'},
+      {types:['g'],l:'MoneyGram Anchor',s:'Receive transactions into wallets &amp; bank accounts',logo:L.mg,abbr:'MG'}],
+   c:[],v:[]},
+  {id:'crypto',lbl:'Crypto',fl:'&#8383;',
+   hd:'Fireblocks &amp; Ripple Anchor',sb:'Crypto on/off-ramp infrastructure ready for activation across markets',
+   d:[{types:['c'],l:'RippleNet Anchor',s:'Send &amp; receive via Ripple rails &mdash; full anchor integration',logo:L.ripple,abbr:'XRP'}],
+   c:[{types:['c'],l:'Fireblocks',s:'Receive and custody crypto assets securely',logo:L.fireblocks,abbr:'FB'},
+      {types:['c'],l:'Coinbase',s:'Global crypto payment processing',logo:L.coinbase,abbr:'CB'}],
+   v:[]},
+  {id:'southafrica',lbl:'South Africa',fl:'&#127487;&#127462;',comingSoon:true,
+   hd:'Activatable via Mukuru licensing',
+   sub:"South Africa can be activated through Mukuru's existing regulatory presence and established banking relationships in the South African market.",
+   enablers:[
+     {t:'Regulatory access',b:"Mukuru's SARB-regulated operations provide the compliance framework for extending Tilt Pay API into South Africa."},
+     {t:'Banking relationships',b:'Existing bilateral relationships with South African banks enable EFT and account-based payouts for corporate and retail clients.'},
+     {t:'Activation path',b:'Integration activates once Mukuru credentials and settlement accounts are extended to the Tilt Pay API integration layer.'}
+   ]},
+  {id:'malawi',lbl:'Malawi',fl:'&#127474;&#127484;',comingSoon:true,
+   hd:'Activatable via Mukuru licensing',
+   sub:"Malawi integration can be enabled through Mukuru's existing operational presence and mobile money operator relationships in the country.",
+   enablers:[
+     {t:'Mobile money network',b:"Mukuru's existing relationships with TNM Mpamba and Airtel Money Malawi provide commercial access for MoMo disbursements and collections."},
+     {t:'Regulatory compliance',b:"Mukuru's Reserve Bank of Malawi compliance framework provides the regulatory foundation for Tilt Pay API services."},
+     {t:'Activation path',b:'Integration activates once Mukuru Malawi credentials are extended to the Tilt Pay API layer, enabling TNM and Airtel MoMo access.'}
+   ]},
+  {id:'drc',lbl:'DRC',fl:'&#127464;&#127465;',comingSoon:true,
+   hd:'Activatable via Mukuru licensing',
+   sub:"DRC integration can be enabled through Mukuru's existing market presence and relationships with DRC's major mobile money providers.",
+   enablers:[
+     {t:'Mobile money reach',b:"Access to Airtel Money DRC, Vodacom M-PESA DRC and Orange Money DRC through Mukuru's established operator relationships."},
+     {t:'Regulatory framework',b:"Mukuru's Central Bank of Congo compliance provides the framework for extending Tilt Pay API into DRC's payment infrastructure."},
+     {t:'Activation path',b:'Integration activates once Mukuru DRC credentials and operator agreements are extended to the Tilt Pay API integration layer.'}
+   ]}
+];
+let infraCur='zambia';
+function sLogo(url,name){return '<img class="ii-logo" src="'+url+'" onerror="this.onerror=null;this.src=\'https://www.google.com/s2/favicons?domain='+url+'&sz=64\'" alt="'+name+'" loading="lazy">';}
+function initBadge(d){var t=d.types[0];return '<span class="ii-logo-init" style="background:'+typeColors[t]+';color:'+typeText[t]+';border:1px solid '+typeBd[t]+'">'+d.abbr+'</span>';}
+function logoHtml(d){if(d.logos)return '<span class="logo-cluster">'+d.logos.map(function(l){return sLogo(l.url,l.n);}).join('')+'</span>';if(!d.logo)return initBadge(d);return sLogo(d.logo,d.l);}
+function infraItem(d){var types=d.types||['s'];var badges=types.map(function(t){return '<span class="badge '+BT[t]+'">'+BL[t]+'</span>';}).join('');var borderCls=types.length>1?'ibm':IT[types[0]];return '<div class="ii '+borderCls+'"><div class="ii-header">'+logoHtml(d)+badges+'<span class="ii-label">'+d.l+'</span></div><div class="ii-sub">'+d.s+'</div></div>';}
+function infraCol(title,items){return '<div class="scol"><p class="scol-head">'+title+'</p>'+(items.length?items.map(infraItem).join(''):'<div style="font-size:11px;color:var(--txt3);padding:4px 2px">&mdash;</div>')+'</div>';}
+function renderCS(m){var cards=m.enablers.map(function(e){return '<div class="cs-card"><div class="cs-card-title">'+e.t+'</div><div class="cs-card-body">'+e.b+'</div></div>';}).join('');return '<div class="cs-page"><div class="cs-flag">'+m.fl+'</div><div class="cs-name">'+m.lbl+'</div><div class="cs-tag">Coming via Mukuru partnership</div><div class="cs-head">'+m.hd+'</div><div class="cs-sub">'+m.sub+'</div><div class="cs-cards">'+cards+'</div></div>';}
+function infraGo(){
+  var m=mkt.find(function(x){return x.id===infraCur;});
+  document.getElementById('infra-tabs').innerHTML=mkt.map(function(x){var cls='tab'+(x.id===infraCur?' active':'');return '<button class="'+cls+'" onclick="infraPick(\''+x.id+'\')">'+x.fl+' '+x.lbl+(x.comingSoon?' <span style="font-size:9px;opacity:.65">&#9675;</span>':'')+'</button>';}).join('');
+  document.getElementById('infra-hl-body').innerHTML='<div class="headline-label">'+m.fl+' '+m.lbl+'</div><div class="headline-title">'+m.hd+'</div><div class="headline-sub">'+m.sb+'</div>';
+  if(m.comingSoon){document.getElementById('infra-content').innerHTML=renderCS(m);}
+  else{var parts=[];parts.push(infraCol('Disbursements',m.d));if(m.c.length)parts.push(infraCol('Collections',m.c));if(m.v.length)parts.push(infraCol('Special services',m.v));document.getElementById('infra-content').innerHTML='<div class="services">'+parts.join('')+'</div>';}
+}
+function infraPick(id){infraCur=id;infraGo();}
+function showPage(id){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});document.querySelectorAll('.nav-tab').forEach(function(b){b.classList.remove('active');});document.getElementById('p-'+id).classList.add('active');document.querySelector('[onclick="showPage(\''+id+'\')"]').classList.add('active');window.scrollTo(0,0);}
+function setEntState(s,e){document.querySelectorAll('.ent-state').forEach(function(el){el.classList.remove('active');});document.querySelectorAll('.state-btn').forEach(function(b){b.classList.remove('active');});document.getElementById('ent-'+s).classList.add('active');e.target.classList.add('active');}
+infraGo();
+</script>
+</body>
+</html>
